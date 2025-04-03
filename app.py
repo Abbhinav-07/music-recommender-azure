@@ -10,7 +10,8 @@ CORS(app)  # Enable CORS for local frontend requests
 CORS(app, resources={r"/*": {"origins": "*"}})  # Allow all origins
 # Load dataset
 file_path = "data/data.csv"
-df = pd.read_csv(file_path)
+df = pd.read_csv(file_path, low_memory=False, dtype=str)
+
 
 df = df[df["popularity"] > 65]  # Filter high popularity songs
 df["name_lower"] = df["name"].str.lower()  # Case-insensitive search
