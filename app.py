@@ -18,6 +18,10 @@ df = df[df["popularity"] > 65]  # Now filter properly
 
 df["name_lower"] = df["name"].str.lower()  # Case-insensitive search
 
+@app.route("/", methods=["GET"])
+def home():
+    return jsonify({"message": "Welcome to the Song Recommendation API!"})
+
 # Load trained model
 hdbscan_model_path = "models/gmm_model.pkl"
 try:
