@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Song Recommendation</title>
+    <style>
+        /* Gradient Background */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #000000, #7209B7); /* Black to Deep Purple */
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            color: #FFC3A0; /* Soft Pink */
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 {
+            margin-top: 20px;
+            font-size: 2rem;
+            color: #FFB3C1; /* Soft Pink */
+        }
+
+        /* Input and Button Styling */
+        input {
+            padding: 12px;
+            margin: 10px;
+            border: none;
+            border-radius: 25px;
+            width: 220px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.15);
+            color: #FFB3C1; /* Soft Pink */
+            font-size: 16px;
+            outline: none;
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        button {
+            padding: 12px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 25px;
+            background: #D100D1; /* Vibrant Pink-Purple */
+            color: #000000; /* Black Text */
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #9A00A6; /* Darker Pink-Purple */
+        }
+
+        /* Card Styling (Glassmorphism) */
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            margin: 20px auto;
+            border: 2px solid #D100D1; /* Vibrant Pink-Purple Border */
+        }
+
+        /* Song List */
+        #songList {
+            list-style: none;
+            padding: 0;
+        }
+
+        #songList li {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 10px;
+            font-weight: bold;
+            color: #FFB3C1; /* Soft Pink */
+        }
+
+        /* Recommendations */
+        #output h3 {
+            color: #FFB3C1; /* Soft Pink */
+            font-size: 1.5rem;
+        }
+
+        #output ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        #output ul li {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 10px;
+            font-weight: bold;
+            color: #FFC3A0; /* Soft Pink */
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            input {
+                width: 80%;
+            }
+
+            .card {
+                width: 90%;
+            }
+        }
+    </style>
+
+    <script>
+        const BASE_URL = "http://127.0.0.1:5000";  // Corrected API base URL
+
+        let songs = [];  // Store entered songs
+
+        function addSong() {
+            let songName = document.getElementById("song").value.trim();
+            let songYear = document.getElementById("year").value.trim();
+
+            if (songName === "" || songYear === "") {
+                alert("Please enter both song name and year.");
+                return;
+            }
+
+            // Add song to list
+            songs.push({ song: songName, year: songYear });
+
+            // Update display
+            let list = document.getElementById("songList");
+            let listItem = document.createElement("li");
+            listItem.textContent = `${songName} (${songYear})`;
+            list.appendChild(listItem);
+
+            // Clear input fields
+            document.getElementById("song").value = "";
+            document.getElementById("year").value = "";
+        }
+
+        function sendSongs() {
+            if (songs.length === 0) {
+                alert("Please add at least one song.");
+                return;
+            }
+
+            let song = songs[0];  // Only sending the first song
+            let url = `${BASE_URL}/recommend?track_name=${encodeURIComponent(song.song)}&year=${encodeURIComponent(song.year)}`;
+
+            fetch(url, { method: "GET" })  // Use GET request
+            .then(response => response.json())
+            .then(data => {
+                let outputDiv = document.getElementById("output");
+                outputDiv.innerHTML = ""; // Clear previous results
+
+                if (data.error) {
+                    outputDiv.innerHTML = `<p style="color: red;">${data.error}</p>`;
+                } else if (data.message) {
+                    outputDiv.innerHTML = `<p style="color: orange;">${data.message}</p>`;
+                } else {
+                    let list = document.createElement("ul"); // Create a <ul> element
+
+                    data.similar_songs.forEach(song => {
+                        let listItem = document.createElement("li");
+                        listItem.textContent = `${song.name} (${song.year}) by ${song.artists}`;
+                        list.appendChild(listItem);
+                    });
+
+                    let heading = document.createElement("h3");
+                    heading.textContent = "Recommended Songs:";
+                    outputDiv.appendChild(heading);
+                    outputDiv.appendChild(list);
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Failed to fetch recommendations. Please try again.");
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>Song Recommendation System</h1>
+    <label>Song Name:</label>
+    <input type="text" id="song" placeholder="Enter song name">
+    <label>Year:</label>
+    <input type="text" id="year" placeholder="Enter release year">
+    <button onclick="addSong()">Add Song</button>
+
+    <h2>Selected Songs:</h2>
+    <ul id="songList"></ul>
+
+    <button onclick="sendSongs()">Get Recommendations</button>
+
+    <h2>Recommendations:</h2>
+    <div id="output"></div>
+</body>
+</html>
