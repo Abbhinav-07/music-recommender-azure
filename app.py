@@ -54,6 +54,8 @@ def recommend_songs():
 
     track_name = request.args.get("track_name", "").strip().lower()
     year = request.args.get("year", type=int)
+    df["year"] = pd.to_numeric(df["year"], errors="coerce")
+
 
     if not track_name or not year:
         return jsonify({"error": "Provide both 'track_name' and 'year'."}), 400
