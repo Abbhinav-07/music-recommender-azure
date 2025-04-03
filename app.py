@@ -13,7 +13,9 @@ file_path = "data/data.csv"
 df = pd.read_csv(file_path, low_memory=False, dtype=str)
 
 
-df = df[df["popularity"] > 65]  # Filter high popularity songs
+df["popularity"] = pd.to_numeric(df["popularity"], errors="coerce")  # Convert to numbers
+df = df[df["popularity"] > 65]  # Now filter properly
+
 df["name_lower"] = df["name"].str.lower()  # Case-insensitive search
 
 # Load trained model
