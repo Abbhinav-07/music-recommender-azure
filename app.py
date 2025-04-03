@@ -7,7 +7,7 @@ from sklearn.preprocessing import StandardScaler
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for local frontend requests
-
+CORS(app, resources={r"/*": {"origins": "*"}})  # Allow all origins
 # Load dataset
 file_path = "data/data.csv"
 df = pd.read_csv(file_path)
