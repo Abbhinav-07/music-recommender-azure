@@ -9,14 +9,14 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS for local frontend requests
 
 # Load dataset
-file_path = "data.csv"
+file_path = "data/data.csv"
 df = pd.read_csv(file_path)
 
 df = df[df["popularity"] > 65]  # Filter high popularity songs
 df["name_lower"] = df["name"].str.lower()  # Case-insensitive search
 
 # Load trained model
-hdbscan_model_path = "gmm_model.pkl"
+hdbscan_model_path = "models/gmm_model.pkl"
 try:
     loaded_hdbscan_model = joblib.load(hdbscan_model_path)
     print("✅ Model loaded successfully.")
